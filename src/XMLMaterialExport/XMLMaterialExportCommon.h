@@ -28,6 +28,10 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 
+namespace frw {
+	struct DisplacementMapParams;
+}
+
 struct EXTRA_IMAGE_DATA
 {
 	EXTRA_IMAGE_DATA()
@@ -69,6 +73,7 @@ void ExportMaterials(const std::string& filename,
 	rpr_material_node closureNode,
 	const std::string& material_name,// example : "Emissive_Fluorescent_Magenta"
 	const std::map<rpr_image, EXTRA_IMAGE_DATA>& extraImageData,
-	bool exportImageUV
+	bool exportImageUV,
+	frw::DisplacementMapParams* displacement_params
 );
 

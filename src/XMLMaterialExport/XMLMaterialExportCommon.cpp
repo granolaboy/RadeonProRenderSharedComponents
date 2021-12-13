@@ -18,6 +18,7 @@ limitations under the License.
 #include <sstream>
 #include <iostream>
 #include "RPRStringIDMapper.h"
+#include "frWrap.h"
 
 // execute FireRender func and check for an error
 #define CHECK_NO_ERROR(func)	{ \
@@ -247,7 +248,8 @@ void ExportMaterials(const std::string& filename,
 	rpr_material_node closureNode,
 	const std::string& material_name,// example : "Emissive_Fluorescent_Magenta"
 	const std::map<rpr_image, EXTRA_IMAGE_DATA>& extraImageData,
-	bool exportImageUV
+	bool exportImageUV,
+	frw::DisplacementMapParams* displacement_params
 )
 {
 	XmlWriter writer(filename);
@@ -539,6 +541,76 @@ void ExportMaterials(const std::string& filename,
 					writer.endElement();
 				}
 			}
+
+			writer.endElement();
+		}
+		if (displacement_params)
+		{
+			writer.startElement("displacement");
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementMin");
+			writer.writeAttribute("type", "float");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementMin));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementMax");
+			writer.writeAttribute("type", "float");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementMax));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementEnableAdaptiveSubdiv");
+			writer.writeAttribute("type", "bool");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementEnableAdaptiveSubdiv));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementASubdivFactor");
+			writer.writeAttribute("type", "float");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementASubdivFactor));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementSubdiv");
+			writer.writeAttribute("type", "int");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementSubdiv));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementCreaseWeight");
+			writer.writeAttribute("type", "float");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementCreaseWeight));
+			writer.endElement();
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementBoundary");
+			writer.writeAttribute("type", "int");
+			writer.writeAttribute("value", std::to_string(displacement_params->displacementBoundary));
+			writer.endElement();
+
+			rpr_image img = nullptr;
+			CHECK_NO_ERROR(rprMaterialNodeGetInputInfo(displacement_params->displacementMap.Handle(), 0, RPR_MATERIAL_NODE_INPUT_VALUE, sizeof(img), &img, nullptr));
+			size_t name_size = 0;
+			CHECK_NO_ERROR(rprImageGetInfo(img, RPR_OBJECT_NAME, 0, nullptr, &name_size));
+			//create file if filename is empty(name == "\0")
+			std::string mat_name;
+			if (name_size == 1)
+			{
+				// not supported atm
+			}
+			else
+			{
+				mat_name.resize(name_size - 1);
+				rprImageGetInfo(img, RPR_OBJECT_NAME, name_size, &mat_name[0], nullptr);
+			}
+
+			writer.startElement("param");
+			writer.writeAttribute("name", "displacementMap");
+			writer.writeAttribute("type", "file_path");
+			writer.writeAttribute("value", mat_name);
+			writer.endElement();
 
 			writer.endElement();
 		}

@@ -42,7 +42,7 @@ AthenaWrapper::AthenaWrapper()
 	, m_folderPath()
 	, sendFileAsync()
 {
-	StartNewFile();
+	//StartNewFile();
 
 #ifdef WIN32
 	std::string temp(getenv("TEMP"));
@@ -57,36 +57,48 @@ AthenaWrapper::AthenaWrapper()
 #endif
 }
 
+//
+// GRANOLA - DISABLE THIS AMAZON BULLSHIT
+//
+// Seriously, what the fuck? Who is this for?
+//
+
+
+
 AthenaWrapper::~AthenaWrapper()
 {}
 
 void AthenaWrapper::Finalize()
 {
-	sendFileAsync.clear();
+	//sendFileAsync.clear();
 }
 
 void AthenaWrapper::StartNewFile(void)
 {
+	/*
 	if (m_athenaFile.get() != nullptr)
 		return; // TODO : make this check more pretty
 
 	// Begin new file
 	m_athenaFile = std::make_unique<AthenaFile>();
 	m_athenaFile->pImpl = std::make_unique<AthenaFileImpl>();
+	*/
 }
 
 void AthenaWrapper::SetEnabled(bool enable /*= true*/)
 {
-	m_isEnabled = enable;
+	//m_isEnabled = enable;
 }
 
 void AthenaWrapper::SetTempFolder(const std::wstring& folderPath)
 {
-	m_folderPath = folderPath;
+	//m_folderPath = folderPath;
 }
 
 std::wstring athenaUniqueFilename(const char* guidstr)
 {
+	std::wstring uniquename;
+	/*
 	if (!guidstr)
 	{
 		return NULL;
@@ -126,12 +138,13 @@ std::wstring athenaUniqueFilename(const char* guidstr)
 
 	uniquename += stream.str();
 	uniquename += L".json";
-
+	*/
 	return uniquename;
 }
 
 AthenaStatus athenaFileWrite(AthenaFilePtr& pJson, const wchar_t* filePath)
 {
+	/*
 	if (!pJson.get() || !filePath)
 	{
 		return kInvalidParam;
@@ -148,6 +161,7 @@ AthenaStatus athenaFileWrite(AthenaFilePtr& pJson, const wchar_t* filePath)
 
 	o << std::setw(4) << pJson->pImpl->mJson << std::endl;
 	o.close();
+	*/
 	return kSuccess;
 }
 
@@ -162,6 +176,7 @@ void strPrepareForPython(std::string& source)
 
 AthenaStatus athenaUpload(std::wstring& sendFile, wchar_t* fileExtension, std::wstring& filename, std::function<int(std::string)>& actionFunc)
 {
+	/*
 	if ((sendFile.length() == 0) || !fileExtension)
 	{
 		return kInvalidParam;
@@ -207,12 +222,13 @@ AthenaStatus athenaUpload(std::wstring& sendFile, wchar_t* fileExtension, std::w
 
 	int res = actionFunc(pyCommand);
 	successFlag = (AthenaStatus) res;
-
-	return successFlag;
+	*/
+	return kSuccess;
 }
 
 bool AthenaWrapper::AthenaSendFile(std::function<int(std::string)>& actionFunc)
 {
+	/*
 	// athena disabled by ui => return
 	if (!m_isEnabled)
 		return true;
@@ -265,6 +281,6 @@ bool AthenaWrapper::AthenaSendFile(std::function<int(std::string)>& actionFunc)
 
 	// move future so that routine could be executed in background
 	sendFileAsync.push_back(std::move(handle));
-
+	*/
 	return true;
 }

@@ -246,6 +246,7 @@ void ExportMaterials(const std::string& filename,
 	const std::set<rpr_material_node>& nodeList,
 	std::unordered_map<rpr_image, RPR_MATERIAL_XML_EXPORT_TEXTURE_PARAM>& textureParameter,
 	rpr_material_node closureNode,
+	rpr_material_node displacementNode,
 	const std::string& material_name,// example : "Emissive_Fluorescent_Magenta"
 	const std::map<rpr_image, EXTRA_IMAGE_DATA>& extraImageData,
 	bool exportImageUV,
@@ -280,6 +281,7 @@ void ExportMaterials(const std::string& filename,
 		std::set<std::string> used_names; // to avoid duplicating node names
 
 		std::string closureNodeName = "";
+		std::string displacementNodeName = "";
 
 		// fill materials first
 		for (const auto& iNode : nodeList)
@@ -306,12 +308,22 @@ void ExportMaterials(const std::string& filename,
 			if (mat == closureNode)
 				closureNodeName = mat_node_name;
 
+			// [granola] displacement nodes
+			if (displacementNode && mat == displacementNode)
+				displacementNodeName = mat_node_name;
+
 			objects[mat] = mat_node_name;
 			used_names.insert(mat_node_name);
 		}
 
 		// closure_node is the name of the node containing the final output of the material
 		writer.writeAttribute("closure_node", closureNodeName);
+
+		// [granola] displacement nodes
+		if (displacementNode && displacementNodeName.length() > 0)
+		{
+			writer.writeAttribute("displacement_node", displacementNodeName);
+		}
 
 		// look for images
 		for (const auto& iNode : nodeList)
@@ -588,28 +600,6 @@ void ExportMaterials(const std::string& filename,
 			writer.writeAttribute("name", "displacementBoundary");
 			writer.writeAttribute("type", "int");
 			writer.writeAttribute("value", std::to_string(displacement_params->displacementBoundary));
-			writer.endElement();
-
-			rpr_image img = nullptr;
-			CHECK_NO_ERROR(rprMaterialNodeGetInputInfo(displacement_params->displacementMap.Handle(), 0, RPR_MATERIAL_NODE_INPUT_VALUE, sizeof(img), &img, nullptr));
-			size_t name_size = 0;
-			CHECK_NO_ERROR(rprImageGetInfo(img, RPR_OBJECT_NAME, 0, nullptr, &name_size));
-			//create file if filename is empty(name == "\0")
-			std::string mat_name;
-			if (name_size == 1)
-			{
-				// not supported atm
-			}
-			else
-			{
-				mat_name.resize(name_size - 1);
-				rprImageGetInfo(img, RPR_OBJECT_NAME, name_size, &mat_name[0], nullptr);
-			}
-
-			writer.startElement("param");
-			writer.writeAttribute("name", "displacementMap");
-			writer.writeAttribute("type", "file_path");
-			writer.writeAttribute("value", mat_name);
 			writer.endElement();
 
 			writer.endElement();

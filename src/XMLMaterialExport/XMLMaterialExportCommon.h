@@ -71,6 +71,7 @@ void ExportMaterials(const std::string& filename,
 	const std::set<rpr_material_node>& nodeList,
 	std::unordered_map<rpr_image, RPR_MATERIAL_XML_EXPORT_TEXTURE_PARAM>& textureParameter,
 	rpr_material_node closureNode,
+	rpr_material_node displacementNode,
 	const std::string& material_name,// example : "Emissive_Fluorescent_Magenta"
 	const std::map<rpr_image, EXTRA_IMAGE_DATA>& extraImageData,
 	bool exportImageUV,
